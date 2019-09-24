@@ -1,0 +1,51 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+func main() {
+
+	wd, err := os.Getwd()
+	if err != nil {
+		err = fmt.Errorf("unable to determine working directory: %s", err)
+
+		log.SetOutput(os.Stderr)
+		log.Fatalf("Error: %+v", err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("/snap/bin/go", "mod", "graph")
+	cmd.Env = append(os.Environ(), "GOPATH=/home/arman/workspaces/gopath")
+	cmd.Dir = wd
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err  := cmd.Run(); err != nil {
+		err = fmt.Errorf("unable execute command: %s", err)
+
+		log.SetOutput(os.Stderr)
+		log.Fatalf("Error: %+v", err)
+	}
+
+	//output, err := cmd.Output()
+	//if err != nil {
+	//	err = fmt.Errorf("error output: %s", err)
+	//
+	//	log.SetOutput(os.Stderr)
+	//	log.Fatalf("Error: %+v", err)
+	//}
+
+	outStr := string(stdout.Bytes())
+	//fmt.Printf("out:\n%s\nerr:\n%s\n", outStr, errStr)
+	a := strings.Split(outStr, "\n")
+	fmt.Printf("%v", len(a))
+
+	for _, v := range a {
+		fmt.Printf("%v\n", strings.Split(v, " "))
+	}
+}
